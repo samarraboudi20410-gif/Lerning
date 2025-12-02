@@ -1,11 +1,11 @@
-class User {
-  String email;
-  String password;
-  String confirmPassword;
+class UserModel {
+  final String email;
+  final String password;
+  final String role; // "student" or "trainer"
 
-  User({
-    required this.email,
-    required this.password,
-    this.confirmPassword = "",
-  });
+  UserModel({required this.email, required this.password, required this.role});
+
+  Map<String, dynamic> toMap() {
+    return {"email": email, "role": role};
+  }
 }

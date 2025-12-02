@@ -1,45 +1,43 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_model.dart';
 
 class AuthController {
-  String validateEmail(String email) {
-    if (email.isEmpty) return "Email requis";
-    if (!RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$").hasMatch(email)) {
-      return "Email invalide";
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+
+  // 🔹 LOGIN
+  Future<String> login(UserModel user) async {
+    try {
+      await _auth.signInWithEmailAndPassword(
+        email: user.email,
+        password: user.password,
+      );
+      return "Connexion réussie";
+    } catch (e) {
+      return e.toString();
     }
-    return "";
   }
 
-  String validatePassword(String password) {
-    if (password.isEmpty) return "Mot de passe requis";
-    return "";
+  // 🔹 SIGNUP
+  Future<String> signup(UserModel user) async {
+    try {
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: user.email,
+        password: user.password,
+      );
+
+      // Sauvegarder dans Firestore
+      await _db.collection("users").doc(credential.user!.uid).set(user.toMap());
+
+      return "Compte créé avec succès";
+    } catch (e) {
+      return e.toString();
+    }
   }
 
-  String validateConfirmPassword(String password, String confirm) {
-    if (confirm.isEmpty) return "Confirmation requise";
-    if (password != confirm) return "Les mots de passe ne correspondent pas";
-    return "";
-  }
-
-  String login(User user) {
-    final emailError = validateEmail(user.email);
-    final passwordError = validatePassword(user.password);
-
-    if (emailError.isNotEmpty) return "Erreur: $emailError";
-    if (passwordError.isNotEmpty) return "Erreur: $passwordError";
-    return "Connexion réussie !";
-  }
-
-  String signup(User user) {
-    final emailError = validateEmail(user.email);
-    final passwordError = validatePassword(user.password);
-    final confirmError = validateConfirmPassword(
-      user.password,
-      user.confirmPassword,
-    );
-
-    if (emailError.isNotEmpty) return "Erreur: $emailError";
-    if (passwordError.isNotEmpty) return "Erreur: $passwordError";
-    if (confirmError.isNotEmpty) return "Erreur: $confirmError";
-    return "Inscription réussie !";
+  // 🔹 LOGOUT
+  Future<void> logout() async {
+    await _auth.signOut();
   }
 }

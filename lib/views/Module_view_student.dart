@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../controllers/module_controller.dart';
-import '../models/Module_model.dart';
-import 'lesson_view_student.dart';
+import '../models/module_model.dart';
+import 'Lesson_view_student.dart';
 
 class ModuleViewStudent extends StatelessWidget {
   final ModuleController controller = ModuleController();
@@ -17,14 +17,17 @@ class ModuleViewStudent extends StatelessWidget {
         backgroundColor: Colors.blueAccent,
       ),
       body: StreamBuilder<List<ModuleModel>>(
-        stream: controller.getModulesForStudents(),
+        stream: controller
+            .getModulesForStudents(), // utilise la méthode ajoutée
         builder: (context, snapshot) {
-          if (!snapshot.hasData)
+          if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
+          }
 
           final modules = snapshot.data!;
-          if (modules.isEmpty)
+          if (modules.isEmpty) {
             return const Center(child: Text("Aucun module disponible"));
+          }
 
           return ListView.builder(
             padding: const EdgeInsets.all(16),

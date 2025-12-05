@@ -1,39 +1,35 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/Module_model.dart';
+import '../models/module_model.dart';
 
 class ModuleController {
-  final CollectionReference modulesRef = FirebaseFirestore.instance.collection(
-    'modules',
-  );
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  // Ajouter un module
-  Future<void> addModule(ModuleModel module) async {
-    await modulesRef.doc(module.id).set(module.toMap());
-  }
-
-  // Pour trainer : récupérer ses modules
+  // Modules du prof
   Stream<List<ModuleModel>> getModules(String profId) {
-    return modulesRef.where('profId', isEqualTo: profId).snapshots().map((
-      snapshot,
-    ) {
-      return snapshot.docs
-          .map(
-            (doc) =>
-                ModuleModel.fromMap(doc.id, doc.data() as Map<String, dynamic>),
-          )
-          .toList();
-    });
+    return _db
+        .collection('modules')
+        .where('profId', isEqualTo: profId)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => ModuleModel.fromMap(doc.id, doc.data()))
+              .toList(),
+        );
   }
 
-  // Pour student : récupérer tous les modules
+  // Modules pour étudiants (tous les modules)
   Stream<List<ModuleModel>> getModulesForStudents() {
-    return modulesRef.snapshots().map((snapshot) {
-      return snapshot.docs
-          .map(
-            (doc) =>
-                ModuleModel.fromMap(doc.id, doc.data() as Map<String, dynamic>),
-          )
-          .toList();
-    });
+    return _db
+        .collection('modules')
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => ModuleModel.fromMap(doc.id, doc.data()))
+              .toList(),
+        );
+  }
+
+  Future<void> addModule(ModuleModel module) async {
+    await _db.collection('modules').doc(module.id).set(module.toMap());
   }
 }

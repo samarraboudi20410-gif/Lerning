@@ -6,7 +6,7 @@ class Lesson {
 
   Lesson({
     required this.id,
-    required this.moduleId,
+    required this.moduleId, // obligatoire maintenant
     required this.title,
     required this.description,
   });
@@ -18,9 +18,9 @@ class Lesson {
   factory Lesson.fromMap(String id, Map<String, dynamic> map) {
     return Lesson(
       id: id,
-      moduleId: map['moduleId'],
-      title: map['title'],
-      description: map['description'],
+      moduleId: map['moduleId'] ?? '',
+      title: map['title'] ?? '',
+      description: map['description'] ?? '',
     );
   }
 }

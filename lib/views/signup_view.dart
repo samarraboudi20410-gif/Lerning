@@ -16,29 +16,36 @@ class _SignupViewState extends State<SignupView> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isTrainer = false;
-
   String message = "";
+  bool isLoading = false;
 
   void handleSignup() async {
-    final user = UserModel(
-      email: _emailController.text.trim(),
-      password: _passwordController.text,
-      role: _isTrainer ? "trainer" : "student",
-    );
+    setState(() => isLoading = true);
 
-    final result = await widget.authController.signup(user);
-
-    setState(() {
-      message = result;
-    });
-
-    if (result.contains("succès")) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => LoginView(authController: widget.authController),
-        ),
+    try {
+      // Crée UserModel avec rôle
+      final user = UserModel(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+        role: _isTrainer ? 'trainer' : 'student',
       );
+
+      final result = await widget.authController.signup(user);
+
+      setState(() => message = result);
+
+      if (result.contains("succès")) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => LoginView(authController: widget.authController),
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() => message = "Erreur signup: $e");
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
@@ -59,7 +66,6 @@ class _SignupViewState extends State<SignupView> {
                 style: TextStyle(fontSize: 18, color: Colors.grey[700]),
               ),
               SizedBox(height: 30),
-
               Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
@@ -73,31 +79,21 @@ class _SignupViewState extends State<SignupView> {
                         controller: _emailController,
                         decoration: InputDecoration(
                           labelText: "Email",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none,
-                          ),
                           filled: true,
                           fillColor: Colors.grey[100],
                         ),
                       ),
                       SizedBox(height: 20),
-
                       TextField(
                         controller: _passwordController,
                         decoration: InputDecoration(
                           labelText: "Password",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none,
-                          ),
                           filled: true,
                           fillColor: Colors.grey[100],
                         ),
                         obscureText: true,
                       ),
                       SizedBox(height: 20),
-
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -107,31 +103,29 @@ class _SignupViewState extends State<SignupView> {
                           ),
                           Switch(
                             value: _isTrainer,
-                            onChanged: (value) {
-                              setState(() => _isTrainer = value);
-                            },
+                            onChanged: (value) =>
+                                setState(() => _isTrainer = value),
                             activeColor: Colors.blue,
                           ),
                         ],
                       ),
                       SizedBox(height: 30),
-
                       SizedBox(
                         width: double.infinity,
                         height: 50,
-                        child: ElevatedButton(
-                          onPressed: handleSignup,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          child: Text(
-                            "Sign Up",
-                            style: TextStyle(color: Colors.white, fontSize: 18),
-                          ),
-                        ),
+                        child: isLoading
+                            ? Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.blue,
+                                ),
+                              )
+                            : ElevatedButton(
+                                onPressed: handleSignup,
+                                child: Text(
+                                  "Sign Up",
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ),
                       ),
                     ],
                   ),
@@ -142,23 +136,6 @@ class _SignupViewState extends State<SignupView> {
                 message,
                 style: TextStyle(
                   color: message.contains("succès") ? Colors.green : Colors.red,
-                ),
-              ),
-
-              SizedBox(height: 20),
-              TextButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          LoginView(authController: widget.authController),
-                    ),
-                  );
-                },
-                child: Text(
-                  "Already have an account?",
-                  style: TextStyle(color: Colors.blue, fontSize: 16),
                 ),
               ),
             ],

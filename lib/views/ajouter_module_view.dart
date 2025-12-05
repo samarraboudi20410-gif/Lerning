@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../controllers/ModuleController.dart';
-import '../models/ModuleModel.dart';
-import 'lesson_view.dart';
+import '../controllers/module_controller.dart';
+import '../models/module_model.dart';
+import 'lesson_view_trainer.dart'; // Assure-toi que le fichier existe
 
 class AjouterModuleView extends StatefulWidget {
   const AjouterModuleView({Key? key}) : super(key: key);
@@ -19,7 +19,7 @@ class _AjouterModuleViewState extends State<AjouterModuleView> {
 
   void _addModule() async {
     final user = FirebaseAuth.instance.currentUser;
-    String profId = user?.uid ?? "";
+    if (user == null) return; // Vérifie si l'utilisateur est connecté
 
     if (titleController.text.trim().isEmpty) return;
 
@@ -29,14 +29,16 @@ class _AjouterModuleViewState extends State<AjouterModuleView> {
       id: moduleId,
       title: titleController.text.trim(),
       description: descController.text.trim(),
-      profId: profId,
+      profId: user.uid,
     );
 
     await controller.addModule(module);
 
+    // Naviguer vers la vue des leçons du module ajouté
+    if (!mounted) return;
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => LessonView(moduleId: moduleId)),
+      MaterialPageRoute(builder: (_) => LessonViewTrainer(moduleId: moduleId)),
     );
   }
 

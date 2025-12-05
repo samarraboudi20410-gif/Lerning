@@ -12,44 +12,73 @@ class AddLessonView extends StatefulWidget {
 }
 
 class _AddLessonViewState extends State<AddLessonView> {
-  final _titleController = TextEditingController();
-  final _descController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descController = TextEditingController();
   final LessonController _controller = LessonController();
+  bool _isLoading = false;
 
   void _addLesson() async {
-    if (_titleController.text.isEmpty) return;
+    if (_titleController.text.trim().isEmpty) return;
+
+    setState(() => _isLoading = true);
 
     final lesson = Lesson(
       id: const Uuid().v4(),
       moduleId: widget.moduleId,
-      title: _titleController.text,
-      description: _descController.text,
+      title: _titleController.text.trim(),
+      description: _descController.text.trim(),
     );
 
-    await _controller.addLesson(lesson);
-    Navigator.pop(context);
+    try {
+      await _controller.addLesson(widget.moduleId, lesson);
+      Navigator.pop(context); // Retour à la vue des leçons
+    } catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Erreur lors de l'ajout de la leçon : $e")),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Lesson')),
+      appBar: AppBar(
+        title: const Text('Ajouter une leçon'),
+        backgroundColor: Colors.blueAccent,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             TextField(
               controller: _titleController,
-              decoration: const InputDecoration(labelText: 'Title'),
+              decoration: const InputDecoration(labelText: 'Titre'),
             ),
+            const SizedBox(height: 16),
             TextField(
               controller: _descController,
               decoration: const InputDecoration(labelText: 'Description'),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _addLesson,
-              child: const Text('Add Lesson'),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _addLesson,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        'Ajouter la leçon',
+                        style: TextStyle(fontSize: 16),
+                      ),
+              ),
             ),
           ],
         ),

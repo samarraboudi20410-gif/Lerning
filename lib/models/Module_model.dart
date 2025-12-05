@@ -18,9 +18,9 @@ class ModuleModel {
   factory ModuleModel.fromMap(String id, Map<String, dynamic> map) {
     return ModuleModel(
       id: id,
-      title: map['title'],
-      description: map['description'],
-      profId: map['profId'],
+      title: map['title'] ?? '',
+      description: map['description'] ?? '',
+      profId: map['profId'] ?? '',
     );
   }
 }

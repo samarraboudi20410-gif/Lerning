@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../controllers/module_controller.dart';
-import '../models/Module_model.dart';
-import 'AjouterModuleView.dart';
+import '../models/module_model.dart';
+import 'ajouter_module_view.dart';
 import 'lesson_view_trainer.dart';
 
-class ModuleView extends StatelessWidget {
+class ModuleViewTrainer extends StatelessWidget {
   final ModuleController controller = ModuleController();
   final User? user = FirebaseAuth.instance.currentUser;
 
-  ModuleView({Key? key}) : super(key: key);
+  ModuleViewTrainer({super.key});
 
   String getUsername() {
     if (user?.email != null) {
-      return user!.email!.split('@')[0]; // partie avant @
+      return user!.email!.split('@')[0];
     }
     return "User";
   }
@@ -32,7 +32,6 @@ class ModuleView extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Welcome message en haut
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Text(
@@ -44,8 +43,6 @@ class ModuleView extends StatelessWidget {
               ),
             ),
           ),
-
-          // Titre "Modules"
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.0),
             child: Text(
@@ -57,10 +54,7 @@ class ModuleView extends StatelessWidget {
               ),
             ),
           ),
-
           const SizedBox(height: 10),
-
-          // Liste des modules
           Expanded(
             child: StreamBuilder<List<ModuleModel>>(
               stream: controller.getModules(profId),
@@ -103,7 +97,8 @@ class ModuleView extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => LessonView(moduleId: module.id),
+                              builder: (_) =>
+                                  LessonViewTrainer(moduleId: module.id),
                             ),
                           );
                         },

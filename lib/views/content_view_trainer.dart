@@ -1,80 +1,87 @@
 import 'package:flutter/material.dart';
-import '../controllers/content_controller.dart';
-import '../models/content_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'add_content_view.dart';
 
-class ContentView extends StatefulWidget {
+class ContentViewTrainer extends StatelessWidget {
   final String lessonId;
-  const ContentView({required this.lessonId, Key? key}) : super(key: key);
+  const ContentViewTrainer({required this.lessonId, super.key});
 
-  @override
-  State<ContentView> createState() => _ContentViewState();
-}
-
-class _ContentViewState extends State<ContentView> {
-  final ContentController _controller = ContentController();
-  List<Content> _contents = [];
-
-  void _loadContents() async {
-    final contents = await _controller.getContents(widget.lessonId);
-    setState(() => _contents = contents);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _loadContents();
+  void _deleteContent(String contentId) async {
+    await FirebaseFirestore.instance
+        .collection('contents')
+        .doc(contentId)
+        .delete();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: const Text("Contenus"),
         backgroundColor: Colors.blueAccent,
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: _contents.length,
-        itemBuilder: (context, index) {
-          final content = _contents[index];
-          return Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-            elevation: 4,
-            margin: const EdgeInsets.only(bottom: 16),
-            child: ListTile(
-              contentPadding: const EdgeInsets.all(16),
-              title: Text(
-                content.type,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text(
-                content.data,
-                style: const TextStyle(color: Colors.grey),
-              ),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete, color: Colors.redAccent),
-                onPressed: () async {
-                  await _controller.deleteContent(content.id);
-                  _loadContents();
-                },
-              ),
-            ),
+      body: StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('contents')
+            .where('lessonId', isEqualTo: lessonId)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final contents = snapshot.data!.docs;
+          if (contents.isEmpty)
+            return const Center(child: Text("Aucun contenu"));
+
+          return ListView.builder(
+            itemCount: contents.length,
+            itemBuilder: (context, index) {
+              final content = contents[index];
+              IconData icon;
+              switch (content['type']) {
+                case 'video':
+                  icon = Icons.video_library;
+                  break;
+                case 'pdf':
+                  icon = Icons.picture_as_pdf;
+                  break;
+                default:
+                  icon = Icons.text_snippet;
+              }
+
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                elevation: 3,
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(16),
+                  leading: Icon(icon, color: Colors.blueAccent),
+                  title: Text(content['data']),
+                  subtitle: Text(content['type']),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => _deleteContent(content.id),
+                  ),
+                ),
+              );
+            },
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blueAccent,
-        child: const Icon(Icons.add),
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => AddContentView(lessonId: widget.lessonId),
-          ),
-        ).then((_) => _loadContents()),
+        child: const Icon(Icons.add, size: 30),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => AddContentView(lessonId: lessonId),
+            ),
+          );
+        },
       ),
     );
   }

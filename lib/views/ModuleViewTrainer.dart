@@ -1,125 +1,93 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../controllers/module_controller.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/module_model.dart';
-import 'ajouter_module_view.dart';
 import 'lesson_view_trainer.dart';
+import 'ajouter_module_view.dart';
 
 class ModuleViewTrainer extends StatelessWidget {
-  final ModuleController controller = ModuleController();
   final User? user = FirebaseAuth.instance.currentUser;
 
   ModuleViewTrainer({super.key});
 
-  String getUsername() {
-    if (user?.email != null) {
-      return user!.email!.split('@')[0];
-    }
-    return "User";
-  }
+  final CollectionReference modulesRef = FirebaseFirestore.instance.collection(
+    'modules',
+  );
 
   @override
   Widget build(BuildContext context) {
-    final profId = user?.uid ?? "";
-
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
+        title: const Text("Modules"),
         backgroundColor: Colors.blueAccent,
-        elevation: 0,
-        title: const Text("Module Dashboard"),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Text(
-              "Welcome, ${getUsername()}!",
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.blueAccent,
-              ),
-            ),
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.0),
-            child: Text(
-              "Modules",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Expanded(
-            child: StreamBuilder<List<ModuleModel>>(
-              stream: controller.getModules(profId),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData)
-                  return const Center(child: CircularProgressIndicator());
-                final modules = snapshot.data!;
-                if (modules.isEmpty)
-                  return const Center(child: Text("Aucun module"));
+      body: StreamBuilder<QuerySnapshot>(
+        stream: modulesRef.snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text("Aucun module disponible"));
+          }
 
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: modules.length,
-                  itemBuilder: (context, index) {
-                    final module = modules[index];
-                    return Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      elevation: 4,
-                      margin: const EdgeInsets.only(bottom: 16),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.all(16),
-                        title: Text(
-                          module.title,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        subtitle: Text(
-                          module.description,
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                        trailing: const Icon(
-                          Icons.arrow_forward_ios,
-                          color: Colors.blueAccent,
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  LessonViewTrainer(moduleId: module.id),
-                            ),
-                          );
-                        },
+          final modules = snapshot.data!.docs
+              .map(
+                (doc) => ModuleModel.fromMap(
+                  doc.id,
+                  doc.data() as Map<String, dynamic>,
+                ),
+              )
+              .toList();
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: modules.length,
+            itemBuilder: (context, index) {
+              final module = modules[index];
+              return Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                elevation: 5,
+                margin: const EdgeInsets.only(bottom: 16),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(16),
+                  title: Text(
+                    module.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => LessonViewTrainer(moduleId: module.id),
                       ),
                     );
                   },
-                );
-              },
-            ),
-          ),
-        ],
+                ),
+              );
+            },
+          );
+        },
       ),
+
+      // Bouton + flottant pour ajouter un module
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.blueAccent,
-        child: const Icon(Icons.add),
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const AjouterModuleView()),
+            MaterialPageRoute(builder: (_) => AjouterModuleView()),
           );
         },
+        backgroundColor: Colors.blueAccent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: const Icon(Icons.add, size: 30),
       ),
     );
   }

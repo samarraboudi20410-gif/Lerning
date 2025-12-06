@@ -1,12 +1,12 @@
 class Lesson {
-  String id;
-  String moduleId;
-  String title;
-  String description;
+  final String id;
+  final String moduleId;
+  final String title;
+  final String description;
 
   Lesson({
     required this.id,
-    required this.moduleId, // obligatoire maintenant
+    required this.moduleId,
     required this.title,
     required this.description,
   });

@@ -6,7 +6,7 @@ import 'login_view.dart';
 class SignupView extends StatefulWidget {
   final AuthController authController;
 
-  SignupView({required this.authController});
+  const SignupView({required this.authController, super.key});
 
   @override
   State<SignupView> createState() => _SignupViewState();
@@ -23,7 +23,6 @@ class _SignupViewState extends State<SignupView> {
     setState(() => isLoading = true);
 
     try {
-      // Crée UserModel avec rôle
       final user = UserModel(
         email: _emailController.text.trim(),
         password: _passwordController.text,
@@ -53,92 +52,111 @@ class _SignupViewState extends State<SignupView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      body: Center(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset('assets/flutterlearn_logo.png', height: 50),
-              SizedBox(height: 20),
-              Text(
-                "Create an account",
-                style: TextStyle(fontSize: 18, color: Colors.grey[700]),
-              ),
-              SizedBox(height: 30),
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                elevation: 5,
-                child: Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Column(
+      body: SingleChildScrollView(
+        child: Center(
+          child: Card(
+            margin: const EdgeInsets.all(20),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            elevation: 5,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    "Create Account",
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: _emailController,
+                    decoration: const InputDecoration(
+                      labelText: "Email",
+                      prefixIcon: Icon(Icons.email),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: "Password",
+                      prefixIcon: Icon(Icons.lock),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      TextField(
-                        controller: _emailController,
-                        decoration: InputDecoration(
-                          labelText: "Email",
-                          filled: true,
-                          fillColor: Colors.grey[100],
-                        ),
+                      Text(
+                        _isTrainer ? "I am a Trainer" : "I am a Student",
+                        style: const TextStyle(fontSize: 16),
                       ),
-                      SizedBox(height: 20),
-                      TextField(
-                        controller: _passwordController,
-                        decoration: InputDecoration(
-                          labelText: "Password",
-                          filled: true,
-                          fillColor: Colors.grey[100],
-                        ),
-                        obscureText: true,
-                      ),
-                      SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _isTrainer ? "I am a Trainer" : "I am a Student",
-                            style: TextStyle(fontSize: 16),
-                          ),
-                          Switch(
-                            value: _isTrainer,
-                            onChanged: (value) =>
-                                setState(() => _isTrainer = value),
-                            activeColor: Colors.blue,
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 30),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: isLoading
-                            ? Center(
-                                child: CircularProgressIndicator(
-                                  color: Colors.blue,
-                                ),
-                              )
-                            : ElevatedButton(
-                                onPressed: handleSignup,
-                                child: Text(
-                                  "Sign Up",
-                                  style: TextStyle(fontSize: 18),
-                                ),
-                              ),
+                      Switch(
+                        value: _isTrainer,
+                        onChanged: (value) =>
+                            setState(() => _isTrainer = value),
+                        activeColor: Colors.blueAccent,
                       ),
                     ],
                   ),
-                ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: isLoading
+                        ? const Center(
+                            child: CircularProgressIndicator(
+                              color: Colors.blueAccent,
+                            ),
+                          )
+                        : ElevatedButton(
+                            onPressed: handleSignup,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blueAccent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              "Sign Up",
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    message,
+                    style: TextStyle(
+                      color: message.contains("succès")
+                          ? Colors.green
+                          : Colors.red,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              LoginView(authController: widget.authController),
+                        ),
+                      );
+                    },
+                    child: const Text("Back to Login"),
+                  ),
+                ],
               ),
-              SizedBox(height: 20),
-              Text(
-                message,
-                style: TextStyle(
-                  color: message.contains("succès") ? Colors.green : Colors.red,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),

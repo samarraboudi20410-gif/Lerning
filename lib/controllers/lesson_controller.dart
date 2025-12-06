@@ -2,12 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/lesson_model.dart';
 
 class LessonController {
+  final CollectionReference lessonsRef = FirebaseFirestore.instance.collection(
+    'lessons',
+  );
+
   // Récupérer les leçons d'un module
   Future<List<Lesson>> getLessons(String moduleId) async {
-    final snapshot = await FirebaseFirestore.instance
-        .collection('modules')
-        .doc(moduleId)
-        .collection('lessons')
+    final snapshot = await lessonsRef
+        .where('moduleId', isEqualTo: moduleId)
         .get();
 
     return snapshot.docs
@@ -17,12 +19,8 @@ class LessonController {
         .toList();
   }
 
-  Future<void> addLesson(String moduleId, Lesson lesson) async {
-    await FirebaseFirestore.instance
-        .collection('modules')
-        .doc(moduleId)
-        .collection('lessons')
-        .doc(lesson.id)
-        .set(lesson.toMap());
+  // Ajouter une leçon
+  Future<void> addLesson(Lesson lesson) async {
+    await lessonsRef.doc(lesson.id).set(lesson.toMap());
   }
 }

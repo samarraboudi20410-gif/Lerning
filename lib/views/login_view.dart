@@ -4,8 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../controllers/auth_controller.dart';
 import '../models/user_model.dart';
 import 'ModuleViewTrainer.dart';
-import 'Module_view_student.dart';
 import 'signup_view.dart';
+import 'student_home_page';
 
 class LoginView extends StatefulWidget {
   final AuthController authController;
@@ -63,7 +63,7 @@ class _LoginViewState extends State<LoginView> {
       } else {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => ModuleViewStudent()),
+          MaterialPageRoute(builder: (_) => StudentHomePage()),
         );
       }
     } catch (e) {

@@ -38,6 +38,56 @@ class AuthController {
 
   // 🔹 LOGOUT
   Future<void> logout() async {
-    await _auth.signOut();
+    try {
+      await _auth.signOut(); // déconnexion Firebase
+    } catch (e) {
+      print("Erreur logout: $e");
+      rethrow;
+    }
+  }
+
+  // 🔹 GET CURRENT USER
+  Future<UserModel?> getCurrentUser() async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) return null;
+
+      final snapshot = await _db.collection("users").doc(user.uid).get();
+
+      if (!snapshot.exists) return null;
+
+      return UserModel(
+        email: snapshot["email"],
+        password: "",
+        role: snapshot["role"],
+      );
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // 🔹 CHANGE PASSWORD
+  Future<String> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    try {
+      User? user = _auth.currentUser;
+      if (user == null) return "Utilisateur non connecté";
+
+      // Ré-authentification
+      AuthCredential credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: currentPassword,
+      );
+      await user.reauthenticateWithCredential(credential);
+
+      // Mise à jour du mot de passe
+      await user.updatePassword(newPassword);
+
+      return "Mot de passe changé avec succès";
+    } catch (e) {
+      return "Erreur : ${e.toString()}";
+    }
   }
 }

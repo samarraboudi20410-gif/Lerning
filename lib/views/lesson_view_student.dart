@@ -16,15 +16,15 @@ class _LessonViewStudentState extends State<LessonViewStudent> {
   final LessonController _controller = LessonController();
   List<Lesson> _lessons = [];
 
-  void _loadLessons() async {
-    final lessons = await _controller.getLessons(widget.moduleId);
-    setState(() => _lessons = lessons);
-  }
-
   @override
   void initState() {
     super.initState();
     _loadLessons();
+  }
+
+  void _loadLessons() async {
+    final lessons = await _controller.getLessons(widget.moduleId);
+    setState(() => _lessons = lessons);
   }
 
   @override
@@ -37,8 +37,8 @@ class _LessonViewStudentState extends State<LessonViewStudent> {
       body: _lessons.isEmpty
           ? const Center(child: Text("Aucune leçon disponible"))
           : ListView.builder(
-              itemCount: _lessons.length,
               padding: const EdgeInsets.all(16),
+              itemCount: _lessons.length,
               itemBuilder: (context, index) {
                 final lesson = _lessons[index];
                 return Card(
@@ -56,8 +56,10 @@ class _LessonViewStudentState extends State<LessonViewStudent> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) =>
-                              ContentViewStudent(lessonId: lesson.id),
+                          builder: (_) => ContentViewStudent(
+                            lessonId: lesson.id,
+                            moduleId: widget.moduleId, // <- IMPORTANT
+                          ),
                         ),
                       );
                     },

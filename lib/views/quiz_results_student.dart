@@ -1,52 +1,45 @@
 import 'package:flutter/material.dart';
 import '../controllers/quiz_controller.dart';
-import '../models/quiz_model.dart';
+import '../models/quiz_result_model.dart';
 
-class QuizViewStudent extends StatelessWidget {
-  final String moduleId; // module pour lequel on récupère le quiz
+class QuizResultsStudent extends StatelessWidget {
+  final String studentId; // ID de l'étudiant
   final QuizController controller = QuizController();
 
-  QuizViewStudent({super.key, required this.moduleId});
+  QuizResultsStudent({super.key, required this.studentId});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text("Quiz"),
+        title: const Text("Mes Quiz"),
         backgroundColor: Colors.blueAccent,
       ),
-      body: StreamBuilder<List<QuizModel>>(
-        stream: controller.getQuizzes(moduleId), // <- on passe moduleId
+      body: FutureBuilder<List<QuizResultModel>>(
+        future: controller.getQuizResults(studentId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text("Aucun quiz disponible"));
+            return const Center(child: Text("Aucun quiz passé"));
           }
 
-          final quizzes = snapshot.data!;
+          final results = snapshot.data!;
 
           return ListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: quizzes.length,
+            itemCount: results.length,
             itemBuilder: (context, index) {
-              final quiz = quizzes[index];
-
+              final quiz = results[index];
               return Card(
                 elevation: 4,
+                margin: const EdgeInsets.only(bottom: 12),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(15),
                 ),
-                margin: const EdgeInsets.only(bottom: 16),
                 child: ListTile(
-                  leading: const Icon(
-                    Icons.quiz,
-                    color: Colors.blueAccent,
-                    size: 35,
-                  ),
                   title: Text(
                     quiz.title,
                     style: const TextStyle(
@@ -54,10 +47,7 @@ class QuizViewStudent extends StatelessWidget {
                       fontSize: 16,
                     ),
                   ),
-                  subtitle: Text(quiz.description),
-                  onTap: () {
-                    // TODO: ouvrir la page du quiz pour répondre aux questions
-                  },
+                  subtitle: Text("Score : ${quiz.score} / ${quiz.total}"),
                 ),
               );
             },

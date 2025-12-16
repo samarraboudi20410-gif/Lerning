@@ -6,6 +6,7 @@ import 'content_view_trainer.dart';
 
 class LessonViewTrainer extends StatefulWidget {
   final String moduleId;
+
   const LessonViewTrainer({required this.moduleId, super.key});
 
   @override
@@ -62,11 +63,14 @@ class _LessonViewTrainerState extends State<LessonViewTrainer> {
                       style: const TextStyle(color: Colors.grey),
                     ),
                     onTap: () {
+                      // ✅ Correction : passer moduleId également
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) =>
-                              ContentViewTrainer(lessonId: lesson.id),
+                          builder: (_) => ContentViewTrainer(
+                            lessonId: lesson.id,
+                            moduleId: widget.moduleId,
+                          ),
                         ),
                       );
                     },
@@ -83,7 +87,7 @@ class _LessonViewTrainerState extends State<LessonViewTrainer> {
             MaterialPageRoute(
               builder: (_) => AddLessonView(moduleId: widget.moduleId),
             ),
-          ).then((_) => _loadLessons());
+          ).then((_) => _loadLessons()); // recharge la liste après ajout
         },
       ),
     );

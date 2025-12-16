@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'add_content_view.dart';
+import 'add_quiz_view.dart';
 
 class ContentViewTrainer extends StatelessWidget {
   final String lessonId;
-  const ContentViewTrainer({required this.lessonId, super.key});
+  final String moduleId;
 
+  const ContentViewTrainer({
+    required this.lessonId,
+    required this.moduleId,
+    super.key,
+  });
+
+  // Supprimer un contenu
   void _deleteContent(String contentId) async {
     await FirebaseFirestore.instance
         .collection('contents')
@@ -20,25 +28,28 @@ class ContentViewTrainer extends StatelessWidget {
         title: const Text("Contenus"),
         backgroundColor: Colors.blueAccent,
       ),
-      body: StreamBuilder(
+      body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('contents')
             .where('lessonId', isEqualTo: lessonId)
             .snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text("Aucun contenu disponible"));
+          }
+
           final contents = snapshot.data!.docs;
-          if (contents.isEmpty)
-            return const Center(child: Text("Aucun contenu"));
 
           return ListView.builder(
             itemCount: contents.length,
             itemBuilder: (context, index) {
               final content = contents[index];
               IconData icon;
+
               switch (content['type']) {
                 case 'video':
                   icon = Icons.video_library;
@@ -71,17 +82,42 @@ class ContentViewTrainer extends StatelessWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.blueAccent,
-        child: const Icon(Icons.add, size: 30),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => AddContentView(lessonId: lessonId),
-            ),
-          );
-        },
+
+      // ====== BOUTONS PROF ======
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          // Ajouter contenu
+          FloatingActionButton(
+            heroTag: "addContent",
+            backgroundColor: Colors.blueAccent,
+            child: const Icon(Icons.add),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AddContentView(lessonId: lessonId),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 12),
+
+          // Ajouter quiz
+          FloatingActionButton(
+            heroTag: "addQuiz",
+            backgroundColor: Colors.green,
+            child: const Icon(Icons.quiz),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AddQuizView(moduleId: moduleId),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../controllers/auth_controller.dart';
 import '../models/user_model.dart';
 import 'module_view_student.dart';
-import 'quiz_view_student.dart';
+import 'quiz_results_student.dart';
 import 'profile_view_student.dart';
 
 class StudentHomePage extends StatelessWidget {
@@ -22,9 +22,8 @@ class StudentHomePage extends StatelessWidget {
         }
 
         final user = snapshot.data!;
-        // prend la partie avant @
         final name = user.email.split('@')[0];
-        final displayName = name[0].toUpperCase() + name.substring(1); // première lettre majuscule
+        final displayName = name[0].toUpperCase() + name.substring(1);
 
         return Scaffold(
           backgroundColor: Colors.grey[100],
@@ -55,7 +54,11 @@ class StudentHomePage extends StatelessWidget {
                   Icons.quiz_outlined,
                   () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => QuizViewStudent()),
+                    MaterialPageRoute(
+                      builder: (_) => QuizResultsStudent(
+                        studentId: user.email, // email utilisé comme ID
+                      ),
+                    ),
                   ),
                 ),
                 dashboardCard(
@@ -75,7 +78,8 @@ class StudentHomePage extends StatelessWidget {
     );
   }
 
-  Widget dashboardCard(BuildContext context, String title, IconData icon, Function onTap) {
+  Widget dashboardCard(
+      BuildContext context, String title, IconData icon, Function onTap) {
     return InkWell(
       onTap: () => onTap(),
       child: Card(
@@ -90,7 +94,9 @@ class StudentHomePage extends StatelessWidget {
             children: [
               Icon(icon, size: 50, color: Colors.blueAccent),
               const SizedBox(height: 10),
-              Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(title,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
             ],
           ),
         ),

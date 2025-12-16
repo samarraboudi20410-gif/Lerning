@@ -1,18 +1,23 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../controllers/content_controller.dart';
 import '../models/content_model.dart';
+import 'dart:io';
 import 'dart:typed_data';
-import 'package:url_launcher/url_launcher.dart';
+import 'quiz_view_student.dart';
 
 class ContentViewStudent extends StatefulWidget {
   final String lessonId;
+  final String moduleId;
 
-  const ContentViewStudent({required this.lessonId, super.key});
+  const ContentViewStudent({
+    required this.lessonId,
+    required this.moduleId,
+    super.key,
+  });
 
   @override
   State<ContentViewStudent> createState() => _ContentViewStudentState();
@@ -21,6 +26,7 @@ class ContentViewStudent extends StatefulWidget {
 class _ContentViewStudentState extends State<ContentViewStudent> {
   final ContentController _controller = ContentController();
   List<Content> _contents = [];
+  Map<String, bool> _completed = {};
 
   @override
   void initState() {
@@ -30,27 +36,32 @@ class _ContentViewStudentState extends State<ContentViewStudent> {
 
   void _loadContents() async {
     final contents = await _controller.getContents(widget.lessonId);
-    setState(() => _contents = contents);
+    setState(() {
+      _contents = contents;
+      for (var c in contents) {
+        _completed[c.id] = false;
+      }
+    });
   }
 
-  // Fonction pour télécharger le PDF depuis Firebase Storage
   Future<String> downloadPdf(String url) async {
     final ref = FirebaseStorage.instance.refFromURL(url);
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/${ref.name}');
 
     final Uint8List? data = await ref.getData();
-    if (data == null)
-      throw Exception("Impossible de récupérer les données du PDF");
+    if (data == null) throw Exception("Impossible de récupérer le PDF");
     await file.writeAsBytes(data, flush: true);
     return file.path;
   }
 
   @override
   Widget build(BuildContext context) {
+    bool allCompleted = _completed.values.every((v) => v);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Contenu de la leçon"),
+        title: const Text("Contenus de la leçon"),
         backgroundColor: Colors.blueAccent,
       ),
       body: _contents.isEmpty
@@ -62,6 +73,7 @@ class _ContentViewStudentState extends State<ContentViewStudent> {
                 final content = _contents[index];
                 Widget contentWidget;
 
+                // Affichage selon le type de contenu
                 switch (content.type) {
                   case 'text':
                     contentWidget = Padding(
@@ -80,9 +92,7 @@ class _ContentViewStudentState extends State<ContentViewStudent> {
                   case 'video':
                     contentWidget = InkWell(
                       onTap: () async {
-                        final uri = Uri.parse(
-                          content.data,
-                        ); // ton lien youtu.be
+                        final uri = Uri.parse(content.data);
                         if (await canLaunchUrl(uri)) {
                           await launchUrl(
                             uri,
@@ -122,7 +132,7 @@ class _ContentViewStudentState extends State<ContentViewStudent> {
                           return const Text('Erreur lors du téléchargement');
                         } else {
                           return SizedBox(
-                            height: 500,
+                            height: 400,
                             child: PDFView(
                               filePath: snapshot.data!,
                               enableSwipe: true,
@@ -142,57 +152,58 @@ class _ContentViewStudentState extends State<ContentViewStudent> {
 
                 return Card(
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ListTile(
-                    title: Text(
-                      "Type: ${content.type}",
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                  elevation: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Type: ${content.type}",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        contentWidget,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            const Text("Terminé"),
+                            Checkbox(
+                              value: _completed[content.id] ?? false,
+                              onChanged: (value) {
+                                setState(() {
+                                  _completed[content.id] = value!;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    subtitle: contentWidget,
                   ),
                 );
               },
             ),
-    );
-  }
-}
-
-// Widget pour YouTube
-class YouTubeVideoWidget extends StatefulWidget {
-  final String videoUrl;
-  const YouTubeVideoWidget({required this.videoUrl, super.key});
-
-  @override
-  _YouTubeVideoWidgetState createState() => _YouTubeVideoWidgetState();
-}
-
-class _YouTubeVideoWidgetState extends State<YouTubeVideoWidget> {
-  late YoutubePlayerController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    final videoId = YoutubePlayer.convertUrlToId(widget.videoUrl);
-    _controller = YoutubePlayerController(
-      initialVideoId: videoId!,
-      flags: const YoutubePlayerFlags(autoPlay: false, mute: false),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return YoutubePlayer(
-      controller: _controller,
-      showVideoProgressIndicator: true,
-      progressIndicatorColor: Colors.blueAccent,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: allCompleted ? Colors.green : Colors.grey,
+        onPressed: allCompleted
+            ? () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => QuizViewStudent(moduleId: widget.moduleId),
+                  ),
+                );
+              }
+            : null, // bouton désactivé si toutes les leçons ne sont pas cochées
+        child: const Icon(Icons.quiz),
+      ),
     );
   }
 }

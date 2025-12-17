@@ -1,3 +1,4 @@
+import 'package:elearningapplication/views/trainer_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,7 +6,7 @@ import '../controllers/auth_controller.dart';
 import '../models/user_model.dart';
 import 'ModuleViewTrainer.dart';
 import 'signup_view.dart';
-import 'student_home_page';
+import 'student_home_page.dart';
 
 class LoginView extends StatefulWidget {
   final AuthController authController;
@@ -58,7 +59,7 @@ class _LoginViewState extends State<LoginView> {
       if (role == 'trainer') {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => ModuleViewTrainer()),
+          MaterialPageRoute(builder: (_) => TrainerHomePage()),
         );
       } else {
         Navigator.pushReplacement(

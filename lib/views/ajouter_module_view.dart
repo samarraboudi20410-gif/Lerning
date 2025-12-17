@@ -47,7 +47,7 @@ class _AjouterModuleViewState extends State<AjouterModuleView> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text("Ajouter Module"),
+        title: const Text("Add Module"),
         backgroundColor: Colors.blueAccent,
         elevation: 0,
       ),
@@ -66,7 +66,7 @@ class _AjouterModuleViewState extends State<AjouterModuleView> {
                 TextField(
                   controller: titleController,
                   decoration: const InputDecoration(
-                    labelText: "Titre du module",
+                    labelText: "Module title",
                     prefixIcon: Icon(Icons.title),
                   ),
                 ),
@@ -91,7 +91,7 @@ class _AjouterModuleViewState extends State<AjouterModuleView> {
                       ),
                     ),
                     child: const Text(
-                      "Ajouter Module",
+                      "Add Module",
                       style: TextStyle(fontSize: 16),
                     ),
                   ),

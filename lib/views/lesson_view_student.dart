@@ -31,11 +31,11 @@ class _LessonViewStudentState extends State<LessonViewStudent> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Leçons"),
+        title: const Text("Lessons"),
         backgroundColor: Colors.blueAccent,
       ),
       body: _lessons.isEmpty
-          ? const Center(child: Text("Aucune leçon disponible"))
+          ? const Center(child: Text("No lessons available"))
           : ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: _lessons.length,

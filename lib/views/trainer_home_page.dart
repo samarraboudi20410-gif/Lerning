@@ -1,14 +1,16 @@
+import 'package:elearningapplication/views/ModuleViewTrainer.dart';
+import 'package:elearningapplication/views/question_list_view.dart';
 import 'package:flutter/material.dart';
 import '../controllers/auth_controller.dart';
 import '../models/user_model.dart';
-import 'module_view_student.dart';
-import 'quiz_results_student.dart';
-import 'profile_view_student.dart';
+import 'ModuleViewTrainer.dart';
+import 'students_list_view.dart';
+import 'profile_view_trainer.dart';
 
-class StudentHomePage extends StatelessWidget {
+class TrainerHomePage extends StatelessWidget {
   final AuthController authController = AuthController();
 
-  StudentHomePage({super.key});
+  TrainerHomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +30,7 @@ class StudentHomePage extends StatelessWidget {
         return Scaffold(
           backgroundColor: Colors.grey[100],
           appBar: AppBar(
-            title: Text("Welcome $displayName"),
+            title: Text("Welcome  $displayName"),
             backgroundColor: Colors.blueAccent,
             elevation: 0,
           ),
@@ -39,35 +41,47 @@ class StudentHomePage extends StatelessWidget {
               crossAxisSpacing: 20,
               mainAxisSpacing: 20,
               children: [
+                // MODULES
                 dashboardCard(
                   context,
                   "Modules",
                   Icons.menu_book_outlined,
                   () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => ModuleViewStudent()),
+                    MaterialPageRoute(builder: (_) => ModuleViewTrainer()),
                   ),
                 ),
+
+                // QUIZ RESULTS / STATS
                 dashboardCard(
                   context,
-                  "Quiz",
-                  Icons.quiz_outlined,
+                  "Students",
+                  Icons.group_outlined,
                   () => Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => QuizResultsStudent(
-                        studentId: user.email, // email utilisé comme ID
-                      ),
-                    ),
+                    MaterialPageRoute(builder: (_) => const StudentsListView()),
                   ),
                 ),
+
+                // PROFILE
                 dashboardCard(
                   context,
                   "Profile",
                   Icons.person_outline,
                   () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => ProfileViewStudent()),
+                    MaterialPageRoute(builder: (_) => ProfileViewTrainer()),
+                  ),
+                ),
+                dashboardCard(
+                  context,
+                  "Questions",
+                  Icons.help_outline,
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const QuestionsListView(),
+                    ),
                   ),
                 ),
               ],
@@ -79,24 +93,30 @@ class StudentHomePage extends StatelessWidget {
   }
 
   Widget dashboardCard(
-      BuildContext context, String title, IconData icon, Function onTap) {
+    BuildContext context,
+    String title,
+    IconData icon,
+    Function onTap,
+  ) {
     return InkWell(
       onTap: () => onTap(),
       child: Card(
         elevation: 4,
         shadowColor: Colors.blueAccent.withOpacity(0.3),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(icon, size: 50, color: Colors.blueAccent),
               const SizedBox(height: 10),
-              Text(title,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         ),

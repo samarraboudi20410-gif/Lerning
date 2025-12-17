@@ -38,7 +38,7 @@ class _AddLessonViewState extends State<AddLessonView> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text("Ajouter Leçon"),
+        title: const Text("Add Lesson"),
         backgroundColor: Colors.blueAccent,
       ),
       body: Center(
@@ -56,7 +56,7 @@ class _AddLessonViewState extends State<AddLessonView> {
                 TextField(
                   controller: _titleController,
                   decoration: const InputDecoration(
-                    labelText: "Titre de la leçon",
+                    labelText: "lesson title",
                     prefixIcon: Icon(Icons.title),
                   ),
                 ),
@@ -82,7 +82,7 @@ class _AddLessonViewState extends State<AddLessonView> {
                       ),
                     ),
                     child: const Text(
-                      "Ajouter Leçon",
+                      "Add Lesson",
                       style: TextStyle(fontSize: 16),
                     ),
                   ),

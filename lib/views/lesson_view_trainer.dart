@@ -33,11 +33,11 @@ class _LessonViewTrainerState extends State<LessonViewTrainer> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text("Leçons"),
+        title: const Text("Lessons"),
         backgroundColor: Colors.blueAccent,
       ),
       body: _lessons.isEmpty
-          ? const Center(child: Text("Aucune leçon disponible"))
+          ? const Center(child: Text("No lessons available"))
           : ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: _lessons.length,

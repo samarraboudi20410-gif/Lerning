@@ -25,7 +25,7 @@ class ContentViewTrainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Contenus"),
+        title: const Text("Contents"),
         backgroundColor: Colors.blueAccent,
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -39,7 +39,7 @@ class ContentViewTrainer extends StatelessWidget {
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text("Aucun contenu disponible"));
+            return const Center(child: Text("No content available"));
           }
 
           final contents = snapshot.data!.docs;

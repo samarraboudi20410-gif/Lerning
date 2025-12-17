@@ -35,7 +35,7 @@ class _AddContentViewState extends State<AddContentView> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text("Ajouter Contenu"),
+        title: const Text("Add Content"),
         backgroundColor: Colors.blueAccent,
       ),
       body: Center(
@@ -78,7 +78,7 @@ class _AddContentViewState extends State<AddContentView> {
                       ),
                     ),
                     child: const Text(
-                      "Ajouter Contenu",
+                      "Add Content",
                       style: TextStyle(fontSize: 16),
                     ),
                   ),

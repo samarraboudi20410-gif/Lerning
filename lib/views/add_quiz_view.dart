@@ -23,7 +23,7 @@ class _AddQuizViewState extends State<AddQuizView> {
     if (questionController.text.isEmpty ||
         optionControllers.any((c) => c.text.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Veuillez remplir tous les champs")),
+        const SnackBar(content: Text("please fill in all fields")),
       );
       return;
     }
@@ -48,7 +48,7 @@ class _AddQuizViewState extends State<AddQuizView> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Question ajoutée avec succès")),
+      const SnackBar(content: Text("Question successfully added")),
     );
   }
 
@@ -57,7 +57,7 @@ class _AddQuizViewState extends State<AddQuizView> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text("Ajouter un quiz"),
+        title: const Text("Add quiz"),
         backgroundColor: Colors.blueAccent,
       ),
       body: Padding(
@@ -96,7 +96,7 @@ class _AddQuizViewState extends State<AddQuizView> {
 
                 const SizedBox(height: 10),
                 const Text(
-                  "Bonne réponse",
+                  "correct answer",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 DropdownButton<int>(
@@ -126,7 +126,7 @@ class _AddQuizViewState extends State<AddQuizView> {
                   ),
                   onPressed: _saveQuestion,
                   child: const Text(
-                    "Ajouter la question",
+                    "Add question",
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
